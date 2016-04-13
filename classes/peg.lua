@@ -1,136 +1,177 @@
-peg = class:new()
+peg = class("peg")
 
-function peg:init(x, y, shape)
+function peg:init(x, y, t)
 	self.x = x
 	self.y = y
-	self.shape = shape 
 
-	self.width = 16*scale 
-	self.height = 16*scale 
-	self.mask = {"all"}
+	self.width = 16
+	self.height = 16
 
-	self.oldx = x
-	self.oldy = y 
+	self.active = true
 
-	self.active = true 
-	self.xSpeed = 0
-	self.ySpeed = 0
-	
-	if self.shape == "square" then
-		self.quad = 1
-	elseif self.shape == "triangle" then
-		self.quad = 2
-	elseif self.shape == "circle" then
-		self.quad = 3 
-	elseif self.shape == "plus" then
-		self.quad = 4
+	self.gravity = 0
+
+	self.speedx = 0
+	self.speedy = 0
+
+	self.mask =
+	{
+		--["player"] = true,
+		["peg"] = true
+	}
+
+	if t ~= "hole" and t ~= "block" then
+		gameAddPegCount(1)
 	end
 
-	self.remove = false
-	self.transformed = false
-	self.selection = false
+	self.t = t
+
+	self.targets = {false, false}
+
+	self.canMove = true
+
+	self.quadi = 2 + self:getQuadi(t)
 end
 
 function peg:update(dt)
-	--im a shaaape!
+	if self.targets[1] and self.targets[2] then
+		if util.dist(self.x, self.y, self.targets[1], self.targets[2]) == 0 then
+			self.speedx = 0
+			self.speedy = 0
 
-
-	local x, y = math.floor(self.x/(16*scale)), math.floor(self.y/(16*scale))
-
-	if self.shape == "square" then
-		for i, v in pairs(objects["block"]) do
-			if v.passive == true then 
-				if x*16*scale == v.x and y*16*scale == v.y then 
-					map[x][y] = 1
-					v.remove = true 
-					self.remove = true 
-				end
-			end
-		end
-	elseif map[x][y] == 2 then
-		if self.shape ~= "square" then
-			for i, v in pairs(objects["block"]) do
-				if self.x == v.x and self.y == v.y then 
-					self.remove = true 
-				end
-			end
-		end
-	end 
-
-	if map[x][y] ~= 2 then 
-		map[x][y] = self.shape
-	end
-
-	if self.shape == "plus" then
-		for i, v in pairs(pegs["plus"]) do
-			if (v ~= self) and self.x == v.x and self.y == v.y then
-				if not self.selection and not self.transformed then 
-					self.selection = true 
-					objects["player"][1].canmove = false
-					objects["player"][1].selection = true
-					self.remove = true
-				end
-			end
-		end
-	end
-
-	if self.shape == "square" then
-		for i, v in pairs(pegs["square"]) do
-			if (v ~= self) and self.x == v.x and self.y == v.y then
-				self.remove = true
-			end
-		end
-	end
-
-	if self.shape == "circle" then
-		for i, v in pairs(pegs["circle"]) do
-			if (v ~= self) and self.x == v.x and self.y == v.y then
-				self.remove = true
-				--print(v.x, v.y, self.x, self.y)
-			end
-		end
-	end
-
-	if self.shape == "triangle" then
-		for i, v in pairs(pegs["triangle"]) do
-			if (v ~= self) and self.x == v.x and self.y == v.y then
-				self.remove = true
-				table.insert(objects["block"], block:new(self.x, self.y, false, "solid"))
-			end
-		end
-	end
-
-	for i, v in pairs(pegs) do
-		for j, w in pairs(v) do
-			if (w ~= self) and self.x == w.x and self.y == w.y then
-				print("!", self.shape)
-				if not w.selection then 
-					if w.shape ~= self.shape then
-						self.remove = true 
-						levelstat = "mismatch"	
-						objects["player"][1].canmove = false
-						minusLife()
-					end
-				end
-			end
+			self.targets = {false, false}
 		end
 	end
 end
 
 function peg:draw()
-	love.graphics.draw(pegsimg, pegsquads[self.quad], self.x, self.y, 0, scale, scale)
+	love.graphics.draw(objectImage, objectQuads[self.quadi], self.x, self.y)
 end
 
-function peg:Push(callBack, ply)
-	self.movementcallback = callBack
+function peg:getQuadi(t)
+	if t == "square" then
+		return 1
+	elseif t == "triangle" then
+		return 2
+	elseif t == "circle" then
+		return 3
+	elseif t == "cross" then
+		return 4
+	elseif t == "hole" then
+		return 5
+	else
+		return 0
+	end
+end
 
-	for k, v in pairs(objects["block"]) do
-		if not v.passive then
-			pegCheck(self, v, ply)
+function peg:setType(i)
+	if i == 3 then
+		self.t = "square"
+	elseif i == 4 then
+		self.t = "triangle"
+	elseif t == 5 then
+		self.t = "circle"
+	elseif t == 6 then
+		self.t = "cross"
+	end
+end
+
+function peg:move(x, y)
+	local coll = checkrectangle(self.x + x, self.y + y, self.width, self.height, {"peg"})
+
+	if #coll > 0 then
+		if coll[1][2].t == "block" then
+			return false
+		elseif coll[1][2].t ~= "hole" and coll[1][2].t ~= self.t then
+			gameOver()
+			return false
 		end
 	end
 
-	for k, v in pairs(objects["barrier"]) do
-		pegCheck(self, v, ply)
+	self.speedx = x
+	self.speedy = y
+
+	self.targets = {self.x + x, self.y + y}
+
+	return true
+end
+
+function peg:passiveCollide(name, data)
+	if self ~= data and data.t == "hole" then
+		local fakeRemove = false
+		if self.t ~= "square" then
+			fakeRemove = true
+		end
+		self:collideRemove(data, fakeRemove)
 	end
+end
+
+function peg:rightCollide(name, data)
+	self:collideDetection(name, data)
+end
+
+function peg:leftCollide(name, data)
+	self:collideDetection(name, data)
+end
+
+function peg:upCollide(name, data)
+	self:collideDetection(name, data)
+end
+
+function peg:downCollide(name, data)
+	self:collideDetection(name, data)
+end
+
+function peg:collideDetection(name, data)
+	if name ~= "player" and data.t ~= "block" then
+		if data.t == self.t then
+			self:collideRemove(data)
+		else
+			if self.t == "square" and data.t == "hole" then
+				self:collideRemove(data)
+			else
+				if data.t == "hole" then
+					self:collideRemove(data, true)
+				else
+					gameOver()
+				end
+			end
+		end
+	end
+end
+
+function peg:change(dir)
+	local maths, max = math.min, 6
+	if dir < 0 then
+		maths, max = math.max, 3
+	end
+
+	self.quadi = maths(self.quadi + dir, max)
+
+	self:setType(self.quadi)
+end
+
+function peg:collideRemove(data, fakeRemove)
+	if self.t == "triangle" and data.t == "triangle" then
+		table.insert(objects["peg"], peg:new(data.x, data.y, "block"))
+	elseif self.t == "cross" and data.t == "cross" then
+		fakeRemove = true
+
+		if objects["player"][1] then
+			objects["player"][1]:setPeg(data)
+		end
+	end
+
+	self.passive = true
+
+	if not fakeRemove then
+		data.remove = true
+		data.passive = true
+	end
+
+	self.remove = true
+end
+
+function peg:getType()
+	return self.t
 end

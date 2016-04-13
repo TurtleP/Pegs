@@ -1,5 +1,6 @@
 function love.conf(t)
-	t.identity = "Pegs - Lua Edition"
-	t.console = false
-	t.version = "0.9.1"
+	t.window.width = 192
+	t.window.height = 128
+	t.window.title = "Pegs Deluxe"
+	t.version = "0.10.0"
 end
