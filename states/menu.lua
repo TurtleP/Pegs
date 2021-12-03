@@ -14,14 +14,14 @@ function menu:enter()
 
     self.selections =
     {
-        { text = "PLAY GAME", func = function() end },
-        { text = "SELECT PACK", func = function()
+        { text = strings.playGame, func = function() end },
+        { text = strings.selectMappack, func = function()
             self.state = "puzzles"
         end },
-        { text = "INSTRUCTIONS", func = function()
+        { text = strings.instructions, func = function()
             self.state = "instructions"
         end },
-        { text = "???? ??????", func = function() end}
+        { text = strings.bonus, func = function() end}
     }
 
     self.mappacks = {}
