@@ -1,8 +1,11 @@
-require("libraries.nest"):init({mode = "ctr"})
+love.graphics.setDefaultFilter("nearest", "nearest")
+
+require("libraries.nest"):init({mode = "ctr", emulateJoystick = true})
 require("libraries.batteries"):export()
 
 local colors = require("data.colors")
 local states = require("states").init("menu")
+
 
 function love.load()
     love.graphics.setBackgroundColor(colors.background)

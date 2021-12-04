@@ -22,4 +22,35 @@ function utility.printf_font_depth(text, font, x, y, ...)
     utility.printf_depth(text, x, y, ...)
 end
 
+function utility.switch(check)
+    local t = {}
+
+    t.case = function(var, func)
+        if check == var then
+            func()
+        end
+    end
+
+    t.not_case = function(var, func)
+        if check ~= var then
+            func()
+        end
+    end
+
+    t.not_any = function(values, func)
+        local pass = true
+        for _, value in ipairs(values) do
+            if value == check then
+                pass = false
+            end
+        end
+
+        if pass then
+            func()
+        end
+    end
+
+    return t
+end
+
 return utility

@@ -9,12 +9,16 @@ local textures = require("data.textures")
 local mappack   = require("classes.menu.mappack")
 local scrollbar = require("classes.menu.scrollbar")
 
+local state = require("states")
+
 function menu:enter()
-    audio.menu:play()
+    audio:play("menu")
 
     self.selections =
     {
-        { text = strings.playGame, func = function() end },
+        { text = strings.playGame, func = function()
+            state.switch("game", self.mappacks[self.packSelection]:getLevels())
+        end },
         { text = strings.selectMappack, func = function()
             self.state = "puzzles"
         end },
@@ -36,9 +40,7 @@ function menu:enter()
     self.packSelection = 1
     self.mappacks[self.packSelection]:select(true)
 
-    if #self.mappacks > 4 then
-        self.scrollbar = scrollbar(love.graphics.getWidth("bottom"), 15, 204, #self.mappacks)
-    end
+    self.scrollbar = scrollbar(love.graphics.getWidth("bottom"), 15, 204, #self.mappacks)
 
     self.state = "main"
 end
@@ -80,6 +82,7 @@ function menu:draw_puzzles()
     love.graphics.setScissor(0, 15, love.graphics.getWidth(), love.graphics.getHeight() - fonts.menu:getHeight() - 15)
 
     love.graphics.push()
+
     love.graphics.translate(0, -self.scrollbar:getScrollValue())
 
     for _, v in ipairs(self.mappacks) do
@@ -88,9 +91,7 @@ function menu:draw_puzzles()
 
     love.graphics.pop()
 
-    if self.scrollbar then
-        self.scrollbar:draw()
-    end
+    self.scrollbar:draw()
 
     love.graphics.setScissor()
 

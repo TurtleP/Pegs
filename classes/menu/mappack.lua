@@ -1,4 +1,4 @@
-local mappack = class("mappack")
+local mappack = class()
 
 local colors = require("data.colors")
 local fonts  = require("data.fonts")
@@ -26,15 +26,19 @@ function mappack:new(index, path)
     self.levels = {}
     local items = love.filesystem.getDirectoryItems(path:gsub("%.", "/"))
 
-    for index = 1, #items do
-        if items[index]:sub(-4) == ".lua" then
-            local name = items[index]:gsub(".lua", "")
+    for mapIndex = 1, #items do
+        if items[mapIndex]:sub(-4) == ".lua" then
+            local name = items[mapIndex]:gsub(".lua", "")
 
             if name ~= "info" then
-                self.levels[index] = pcall(require, path .. "." .. name)
+                _, self.levels[mapIndex] = pcall(require, path .. "." .. name)
             end
         end
     end
+end
+
+function mappack:getLevels()
+    return self.levels
 end
 
 function mappack:update(dt)

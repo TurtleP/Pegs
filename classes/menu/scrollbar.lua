@@ -1,4 +1,4 @@
-local scrollbar = class("scrollbar")
+local scrollbar = class()
 
 local colors = require("data.colors")
 
@@ -9,7 +9,7 @@ function scrollbar:new(x, y, height, size)
     self.x = x - self.width - 2
 
     self.fullHeight = height
-    self.height = height / (size - 4)
+    self.height = height / math.max((size - 4), 1)
 
     self.max = math.ceil(size / 4)
 

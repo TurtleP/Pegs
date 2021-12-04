@@ -13,8 +13,8 @@ end
 local _batteries = {
     class = require_relative("class"),
     assert = require_relative("assert"),
+    functional = require_relative("functional"),
     mathx = require_relative("mathx"),
-    pooled = require_relative("pooled"),
     tablex = require_relative("tablex"),
     timer = require_relative("timer")
 }
@@ -42,8 +42,10 @@ function _batteries:export()
     --overwrite assert wholesale (it's compatible)
     assert = self.assert
 
-    --overlay tablex and functional and sort routines onto table
+    --overlay tablex and functional onto table
 	self.tablex.overlay(table, self.tablex)
+	--now we can use it through table directly
+	table.overlay(table, self.functional)
 
     --overlay onto global math table
 	table.overlay(math, self.mathx)
