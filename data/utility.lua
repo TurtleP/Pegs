@@ -22,32 +22,74 @@ function utility.printf_font_depth(text, font, x, y, ...)
     utility.printf_depth(text, x, y, ...)
 end
 
-function utility.switch(check)
+--[[
+Switch statement based on a flat array or key array @list.
+Copies the `list` into `items` to preserve original data.
+ - @param check: `any` what we switch against.
+ - @return `table` with functions
+    - `t.case` @check == @var, if true, run `function` func
+        - removes the value from the item checklist
+    - `t.default` runs for anything remaining
+        - removes remaining values from item checklist
+]]
+function utility.switch(list, check)
     local t = {}
+    local items = {}
+
+    for _, value in pairs(list) do
+        table.insert(items, value)
+    end
+
+    local lastFound = false
+
+    local function remove(var)
+        if #items == 0 then
+            return false
+        end
+
+        local foundIndex = nil
+
+        for index, value in ipairs(items) do
+            if value == var then
+                foundIndex = index
+                break
+            end
+        end
+
+        if foundIndex then
+            table.remove(items, foundIndex)
+        end
+
+        return foundIndex ~= nil
+    end
+
+    local function removeAll()
+        if #items == 0 then
+            return false
+        end
+
+        for index, _ in ipairs(items) do
+            items[index] = nil
+        end
+
+        return true
+    end
 
     t.case = function(var, func)
         if check == var then
             func()
+            lastFound = remove(var)
         end
+        return lastFound
     end
 
-    t.not_case = function(var, func)
-        if check ~= var then
-            func()
-        end
-    end
-
-    t.not_any = function(values, func)
-        local pass = true
-        for _, value in ipairs(values) do
-            if value == check then
-                pass = false
-            end
+    t.default = function(func)
+        if lastFound then
+            return
         end
 
-        if pass then
-            func()
-        end
+        func()
+        return removeAll()
     end
 
     return t

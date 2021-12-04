@@ -9,6 +9,7 @@ local peg = require("classes.game.pegs")
 
 local ObjectTypes = {}
 
+ObjectTypes.OBJECT_NONE     = 0
 ObjectTypes.OBJECT_PLAYER   = 1
 ObjectTypes.OBJECT_BARRIER  = 2
 ObjectTypes.OBJECT_SQUARE   = 3
@@ -32,8 +33,11 @@ function map:new(data)
 end
 
 function map:identify(value, x, y)
-    local when = utility.switch(value)
+    local when = utility.switch(ObjectTypes, value)
     local object = nil
+
+    when.case(ObjectTypes.OBJECT_NONE, function()
+    end)
 
     when.case(ObjectTypes.OBJECT_PLAYER, function()
         if not self.player then
@@ -42,16 +46,16 @@ function map:identify(value, x, y)
         end
     end)
 
-    when.not_any({ObjectTypes.OBJECT_TRIANGLE, ObjectTypes.OBJECT_PLUS, ObjectTypes.OBJECT_PLAYER}, function()
-        object = peg.base(value, x, y)
-    end)
-
     when.case(ObjectTypes.OBJECT_TRIANGLE, function()
         object = peg.triangle(value, x, y)
     end)
 
     when.case(ObjectTypes.OBJECT_PLUS, function()
         object = peg.plus(value, x, y)
+    end)
+
+    when.default(function()
+        object = peg.base(value, x, y)
     end)
 
     return object
@@ -65,12 +69,10 @@ function map:decode(data)
             local value = data[y][x]
 
             -- check not empty
-            if value ~= 0 then
-                local object = self:identify(value, (x - 1), (y - 1))
+            local object = self:identify(value, (x - 1), (y - 1))
 
-                if object then
-                    table.insert(world, object)
-                end
+            if object then
+                table.insert(world, object)
             end
         end
     end
