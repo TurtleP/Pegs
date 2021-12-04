@@ -27,7 +27,7 @@ function map:new(data)
     self.size = {width = #data[#data] * 16, height = #data * 16}
     self.windowSize = {width = 400, height = 240}
 
-    self.centeredCamera = (self.size.width < love.graphics.getWidth() and
+    self.centeredCamera = (self.size.width  < love.graphics.getWidth() and
                            self.size.height < love.graphics.getHeight())
 end
 
@@ -42,7 +42,7 @@ function map:identify(value, x, y)
         end
     end)
 
-    when.not_any({ObjectTypes.OBJECT_TRIANGLE, ObjectTypes.OBJECT_PLUS}, function()
+    when.not_any({ObjectTypes.OBJECT_TRIANGLE, ObjectTypes.OBJECT_PLUS, ObjectTypes.OBJECT_PLAYER}, function()
         object = peg.base(value, x, y)
     end)
 

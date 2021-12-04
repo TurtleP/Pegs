@@ -15,7 +15,6 @@ function player:movement(button)
     elseif button == "dpdown" then
         self:move(0, 1)
     end
-    print(self.x, self.y)
 end
 
 return player
