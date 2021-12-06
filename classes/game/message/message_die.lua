@@ -27,11 +27,17 @@ function message_die:new()
     self.inited = false
 end
 
-function message_die:update(dt)
+function message_die:init(dt)
     if not self.inited then
-        audio:play("hurt" .. love.math.random(1, 3))
+        audio:play("die")
         self.inited = true
+    else
+        message.update(self, dt)
     end
+end
+
+function message_die:update(dt)
+    self:init(dt)
 
     self.tween:update(dt)
     self.colorTimer = math.min(self.colorTimer + dt * 0.25, 1)
@@ -48,6 +54,10 @@ function message_die:draw()
     love.graphics.printf(self._message, self._font, self.position.x, self.y, 320, "center")
 
     love.graphics.setColor(1, 1, 1)
+end
+
+function message_die:finished()
+    return self.inited and audio:stopped("die") and self.timer:expired()
 end
 
 return message_die

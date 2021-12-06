@@ -10,20 +10,27 @@ if not audio.inited then
     audio.game:setLooping(true)
 
     audio.win = love.audio.newSource("audio/win.ogg", "static")
-
-    local hurtSound = "hurt%d.ogg"
-    for i = 1, 3 do
-        audio["hurt" .. i] = love.audio.newSource("audio/" .. hurtSound:format(i), "static")
-    end
+    audio.die = love.audio.newSource("audio/died.ogg", "static")
+    audio.wrong = love.audio.newSource("audio/mismatch.ogg", "static")
 
     audio.inited = true
 end
 
-function audio:play(sound)
-    if self.nowPlaying then
+function audio:play(sound, stop)
+    stop = stop and true or false
+
+    if self.nowPlaying and not stop then
         self.nowPlaying:stop()
     end
     self[sound]:play()
     self.nowPlaying = self[sound]
 end
+
+function audio:stopped(sound)
+    if self[sound] then
+        return not self[sound]:isPlaying()
+    end
+    return false
+end
+
 return audio

@@ -35,6 +35,15 @@ function utility.colorfade(currenttime, maxtime, c1, c2) --Color function
     return ret
 end
 
+function utility.any(t, check)
+    for _, value in ipairs(t) do
+        if value == check then
+            return true
+        end
+    end
+    return false
+end
+
 --[[
 Switch statement based on a flat array or key array @list.
 Copies the `list` into `items` to preserve original data.

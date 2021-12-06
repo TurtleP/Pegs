@@ -1,4 +1,5 @@
-local peg = class()
+local object = require("classes.game.object")
+local peg = class({extends = object})
 
 local vector = require("libraries.vector")
 
@@ -9,11 +10,7 @@ for index  = 1, 7 do
 end
 
 function peg:new(type, name, x, y)
-    self.x = x
-    self.y = y
-
-    self.width  = 16
-    self.height = 16
+    self:super(x, y, 16, 16)
 
     self._type = type
     self._name = name
@@ -21,6 +18,7 @@ function peg:new(type, name, x, y)
     self._blocked = false
     self._lastPosition = vector(x, y)
     self._deleted = false
+    self._mismatch = false
 end
 
 function peg:draw()
@@ -50,8 +48,12 @@ function peg:filter(other)
     if name == "gap" then
         self:delete()
         return false
-    elseif other:name() == self:name() then
+    elseif self:name() == name then
         self:handleSameType(other)
+    elseif self:name() ~= name then
+        if name ~= "player" then
+            self._mismatch = true
+        end
     end
     return self:handlePlayer(name)
 end
@@ -64,21 +66,8 @@ function peg:move(x, y)
 end
 
 function peg:setPosition(x, y)
-    if self:moved() then
-        print(self:position())
-        print(self._lastPosition)
-    end
-
     self.x = x
     self.y = y
-end
-
-function peg:delete()
-    self._deleted = true
-end
-
-function peg:deleted()
-    return self._deleted
 end
 
 function peg:moved()
@@ -92,24 +81,8 @@ function peg:blocked()
     return self._blocked
 end
 
-function peg:passive()
-    return false
-end
-
-function peg:static()
-    return false
-end
-
-function peg:bounds()
-    return self.x, self.y, self.width, self.height
-end
-
-function peg:position()
-    return self.x, self.y
-end
-
-function peg:size()
-    return self.width, self.height
+function peg:mismatch()
+    return self._mismatch
 end
 
 function peg:name()

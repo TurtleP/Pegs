@@ -9,19 +9,28 @@ function game:enter(levels, levelIndex)
     audio:play("game")
     self.levels = levels
 
-    assert(tonumber(levelIndex) or not levelIndex, "levelIndex must be a number")
     self.levelIndex = levelIndex or 1
 
-    self.map = map(levels[self.levelIndex])
+    self.map = map(levels[tostring(self.levelIndex .. ".lua")])
 
     self.messages = {}
-    self.messages.dead = messages.death()
-    self.messages.win  = messages.win()
+    self.messages.dead  = messages.death()
+    self.messages.win   = messages.win()
+    self.messages.wrong = messages.wrong()
 end
 
 function game:update(dt)
     if self.map:state() then
-        self.messages[self.map:state()]:update(dt)
+        local state = self.map:state()
+
+        self.messages[state]:update(dt)
+
+        if self.messages[state]:finished() then
+            if state == map.States.STATE_WIN then
+                self.levelIndex = self.levelIndex + 1
+            end
+            self:enter(self.levels, self.levelIndex)
+        end
         return
     end
     self.map:update(dt)

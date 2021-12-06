@@ -5,7 +5,8 @@ local physics = require("libraries.physics")
 
 local utility = require("data.utility")
 
-local peg = require("classes.game.pegs")
+local peg  = require("classes.game.pegs")
+local wall = require("classes.game.wall")
 
 local ObjectTypes = {}
 
@@ -17,6 +18,12 @@ ObjectTypes.OBJECT_TRIANGLE = 4
 ObjectTypes.OBJECT_CIRCLE   = 5
 ObjectTypes.OBJECT_PLUS     = 6
 ObjectTypes.OBJECT_GAP      = 7
+
+map.States = {}
+
+map.States.STATE_DEAD   = "dead"
+map.States.STATE_WIN    = "win"
+map.States.STATE_WRONG  = "wrong"
 
 function map:new(data)
     local zoom = 2
@@ -30,6 +37,8 @@ function map:new(data)
 
     self:decode(data)
     self._state = nil
+
+    local walls = {}
 end
 
 function map:getPieceName(id)
@@ -45,13 +54,27 @@ function map:checkCleared()
     local entities = physics.getEntities()
     local count = 0
 
+    local exclude = {"player", "barrier", "wall"}
+
     for _, value in ipairs(entities) do
-        if value:name() ~= "player" and value:name() ~= "barrier" then
+        local name = value:name()
+        if not utility.any(exclude, name) then
             count = count + 1
         end
     end
 
     return count == 0
+end
+
+function map:checkWrong()
+    local entities = physics.getEntities()
+
+    for  _, value in ipairs(entities) do
+        if value.mismatch and value:mismatch() then
+            return true
+        end
+    end
+    return false
 end
 
 function map:identify(value, x, y)
@@ -111,6 +134,18 @@ function map:decode(data)
         end
     end
 
+    -- left wall
+    table.insert(objects, wall(-16, 0, 16, self.size.height + 16))
+
+    -- top wall
+    table.insert(objects, wall(-16, -16, self.size.width + 16, 16))
+
+    -- right wall
+    table.insert(objects, wall(self.size.width, -16, 16, self.size.height + 16))
+
+    --bottom wall
+    table.insert(objects, wall(0, self.size.height, self.size.width - 16, 16))
+
     physics.new(objects)
 end
 
@@ -133,12 +168,17 @@ end
 
 function map:update(dt)
     if self.player:deleted() then
-        self._state = "dead"
+        self._state = map.States.STATE_DEAD
         return
     end
 
     if self:checkCleared() then
-        self._state = "win"
+        self._state = map.States.STATE_WIN
+        return
+    end
+
+    if self:checkWrong() then
+        self._state = map.States.STATE_WRONG
         return
     end
 
@@ -155,13 +195,19 @@ function map:draw()
 
     local entities = physics.getEntities()
     for _, object in pairs(entities) do
-        object:draw()
+        if object.draw then
+            object:draw()
+        end
     end
 
     self.camera:detach()
 end
 
 function map:gamepadpressed(button)
+    if self._state then
+        return
+    end
+
     self.player:movement(button)
 end
 

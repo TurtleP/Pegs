@@ -31,7 +31,7 @@ function mappack:new(index, path)
             local name = items[mapIndex]:gsub(".lua", "")
 
             if name ~= "info" then
-                _, self.levels[mapIndex] = pcall(require, path .. "." .. name)
+                _, self.levels[items[mapIndex]] = pcall(require, path .. "." .. name)
             end
         end
     end

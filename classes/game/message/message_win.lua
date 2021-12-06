@@ -12,6 +12,8 @@ function message_win:update(dt)
     if not self.inited then
         audio:play("win")
         self.inited = true
+    else
+        message.update(self, dt)
     end
 end
 
@@ -31,6 +33,10 @@ function message_win:draw()
         local mul = math.sin((love.timer.getTime() * 14) + sector * index) * 8
         love.graphics.print(self._message:sub(index, index), self._font, x + width, y + mul)
     end
+end
+
+function message_win:finished()
+    return self.inited and audio:stopped("win") and self.timer:expired()
 end
 
 return message_win
