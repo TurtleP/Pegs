@@ -9,6 +9,13 @@ if not audio.inited then
     audio.game = love.audio.newSource("audio/game.ogg", "stream")
     audio.game:setLooping(true)
 
+    audio.win = love.audio.newSource("audio/win.ogg", "static")
+
+    local hurtSound = "hurt%d.ogg"
+    for i = 1, 3 do
+        audio["hurt" .. i] = love.audio.newSource("audio/" .. hurtSound:format(i), "static")
+    end
+
     audio.inited = true
 end
 

@@ -15,6 +15,8 @@ local _batteries = {
     assert = require_relative("assert"),
     functional = require_relative("functional"),
     mathx = require_relative("mathx"),
+    pretty = require_relative("pretty"),
+    stringx = require_relative("stringx"),
     tablex = require_relative("tablex"),
     timer = require_relative("timer")
 }
@@ -49,6 +51,9 @@ function _batteries:export()
 
     --overlay onto global math table
 	table.overlay(math, self.mathx)
+
+    --overlay onto string
+	table.overlay(string, self.stringx)
 
     --export the whole library to global `batteries`
     batteries = self

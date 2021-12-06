@@ -7,6 +7,8 @@ if not fonts.inited then
     fonts.menu_medium = love.graphics.newFont("graphics/superstar.ttf", 20)
     fonts.menu_big = love.graphics.newFont("graphics/superstar.ttf", 40)
 
+    fonts.message = love.graphics.newFont("graphics/superstar.ttf", 32)
+
     fonts.inited = true
 end
 

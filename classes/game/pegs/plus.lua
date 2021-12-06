@@ -1,8 +1,8 @@
-local peg = require((...):gsub("plus", "peg"))
-local plus = class({extends = peg})
+local peg  = require((...):gsub("plus", "peg"))
+local plus = class({extends             = peg})
 
-function plus:new(value, x, y)
-    self:super(value, x, y)
+function plus:new(x, y)
+    self:super(6, "plus", x, y)
 end
 
 return plus

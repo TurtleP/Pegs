@@ -22,6 +22,19 @@ function utility.printf_font_depth(text, font, x, y, ...)
     utility.printf_depth(text, x, y, ...)
 end
 
+function utility.colorfade(currenttime, maxtime, c1, c2) --Color function
+    local tp = currenttime / maxtime
+    local ret = {} --return color
+
+    for i = 1, #c1 do
+        ret[i] = c1[i] + (c2[i] - c1[i]) * tp
+        ret[i] = math.max(ret[i], 0)
+        ret[i] = math.min(ret[i], 1)
+    end
+
+    return ret
+end
+
 --[[
 Switch statement based on a flat array or key array @list.
 Copies the `list` into `items` to preserve original data.

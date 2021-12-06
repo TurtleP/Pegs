@@ -1,7 +1,7 @@
 local map = class("map")
 
 local camera = require("libraries.camera")
-local colors = require("data.colors")
+local physics = require("libraries.physics")
 
 local utility = require("data.utility")
 
@@ -19,9 +19,6 @@ ObjectTypes.OBJECT_PLUS     = 6
 ObjectTypes.OBJECT_GAP      = 7
 
 function map:new(data)
-    self.world = self:decode(data)
-    self.worldMap = data
-
     local zoom = 2
     self.camera = camera(0, 0, zoom, 0)
 
@@ -30,13 +27,42 @@ function map:new(data)
 
     self.centeredCamera = (self.size.width  < love.graphics.getWidth() and
                            self.size.height < love.graphics.getHeight())
+
+    self:decode(data)
+    self._state = nil
+end
+
+function map:getPieceName(id)
+    for key, value in pairs(ObjectTypes) do
+        if id == value then
+            return key:split("_")[2]:lower()
+        end
+    end
+    return false
+end
+
+function map:checkCleared()
+    local entities = physics.getEntities()
+    local count = 0
+
+    for _, value in ipairs(entities) do
+        if value:name() ~= "player" and value:name() ~= "barrier" then
+            count = count + 1
+        end
+    end
+
+    return count == 0
 end
 
 function map:identify(value, x, y)
     local when = utility.switch(ObjectTypes, value)
-    local object = nil
+    local object, name = nil, self:getPieceName(value)
 
     when.case(ObjectTypes.OBJECT_NONE, function()
+    end)
+
+    when.case(ObjectTypes.OBJECT_BARRIER, function()
+        object = peg.barrier(x, y)
     end)
 
     when.case(ObjectTypes.OBJECT_PLAYER, function()
@@ -46,38 +72,46 @@ function map:identify(value, x, y)
         end
     end)
 
+    when.case(ObjectTypes.OBJECT_SQUARE, function()
+        object = peg.square(x, y)
+    end)
+
+    when.case(ObjectTypes.OBJECT_GAP, function()
+        object = peg.gap(x, y)
+    end)
+
     when.case(ObjectTypes.OBJECT_TRIANGLE, function()
-        object = peg.triangle(value, x, y)
+        object = peg.triangle(x, y)
     end)
 
     when.case(ObjectTypes.OBJECT_PLUS, function()
-        object = peg.plus(value, x, y)
+        object = peg.plus(x, y)
     end)
 
     when.default(function()
-        object = peg.base(value, x, y)
+        object = peg.base(value, name, x, y)
     end)
 
     return object
 end
 
 function map:decode(data)
-    local world = {}
+    local objects = {}
 
-    for y = 1, #data do
-        for x = 1, #data[y] do
-            local value = data[y][x]
+    for mapy = 1, #data do
+        for mapx = 1, #data[mapy] do
+            local value = data[mapy][mapx]
 
             -- check not empty
-            local object = self:identify(value, (x - 1), (y - 1))
+            local object = self:identify(value, (mapx - 1) * 16, (mapy - 1) * 16)
 
             if object then
-                table.insert(world, object)
+                table.insert(objects, object)
             end
         end
     end
 
-    return world
+    physics.new(objects)
 end
 
 function map:updateCamera()
@@ -98,13 +132,29 @@ function map:updateCamera()
 end
 
 function map:update(dt)
+    if self.player:deleted() then
+        self._state = "dead"
+        return
+    end
+
+    if self:checkCleared() then
+        self._state = "win"
+        return
+    end
+
     self:updateCamera()
+    physics.update(dt)
+end
+
+function map:state()
+    return self._state
 end
 
 function map:draw()
     self.camera:attach()
 
-    for _, object in pairs(self.world) do
+    local entities = physics.getEntities()
+    for _, object in pairs(entities) do
         object:draw()
     end
 

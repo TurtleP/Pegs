@@ -1,8 +1,21 @@
-local peg = require((...):gsub("triangle", "peg"))
+local path = (...):gsub("triangle", "")
+
+local peg     = require(path .. ".peg")
+local barrier = require(path .. ".barrier")
+
 local triangle = class({extends = peg})
 
-function triangle:new(value, x, y)
-    self:super(value, x, y)
+local physics = require("libraries.physics")
+
+function triangle:new(x, y)
+    self:super(4, "triangle", x, y)
+end
+
+function triangle:handleSameType(other)
+    peg.handleSameType(self, other)
+
+    local entity = barrier(other:position())
+    physics.addEntity(entity)
 end
 
 return triangle
