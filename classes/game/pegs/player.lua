@@ -1,4 +1,5 @@
 local peg    = require((...):gsub("player", "peg"))
+local physics= require("libraries.physics")
 local player = class({extends = peg})
 
 local vector = require("libraries.vector")
@@ -16,7 +17,14 @@ function player:filter(other)
         return false
     end
 
-    if not other:static() and not other:blocked() then
+    local move = vector(self:position()) + self.vector
+
+    local x, y = move:unpack()
+    local query, len = physics.queryWorld(x, y, self:size())
+
+    local prediction = query[len] and query[len]:name() == "barrier"
+
+    if not other:static() and not other:blocked() and not prediction then
         other:move(self.vector:unpack())
         return false
     end

@@ -33,16 +33,19 @@ function peg:draw()
 end
 
 function peg:handlePlayer(name)
-    if name ~= "player" then
-        self._blocked = true
+    if name == "barrier" then
         return "slide"
     end
     return false
 end
 
-function peg:handleSameType(other)
+function peg:deletePair(other)
     self:delete()
     other:delete()
+end
+
+function peg:handleSameType(other)
+    self:deletePair(other)
 end
 
 function peg:filter(other)

@@ -77,6 +77,17 @@ function map:checkWrong()
     return false
 end
 
+function map:checkTransform()
+    local entities = physics.getEntities("plus")
+
+    for  _, value in ipairs(entities) do
+        if value:transform() then
+            return true, value
+        end
+    end
+    return false
+end
+
 function map:identify(value, x, y)
     local when = utility.switch(ObjectTypes, value)
     local object, name = nil, self:getPieceName(value)
@@ -204,10 +215,13 @@ function map:draw()
 end
 
 function map:gamepadpressed(button)
-    if self._state then
+    local transform, which = self:checkTransform()
+    if self._state or self.player:static() or transform then
+        if transform then
+            which:gamepadpressed(self, button)
+        end
         return
     end
-
     self.player:movement(button)
 end
 

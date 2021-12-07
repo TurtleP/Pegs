@@ -98,7 +98,21 @@ function physics.resolveHorizontal(entity, against, velocity)
     end
 end
 
-function physics.getEntities()
+function physics.queryWorld(x, y, width, height)
+    return world:queryRect(x, y, width, height)
+end
+
+function physics.getEntities(filter)
+    local result = {}
+
+    if filter then
+        for _, value in ipairs(entities) do
+            if value:name() == filter then
+                table.insert(result, value)
+            end
+        end
+        return result
+    end
     return entities
 end
 

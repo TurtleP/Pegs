@@ -8,10 +8,15 @@ function object:new(x, y, width, height)
     self.height = height
 
     self._deleted = false
+    self._static = false
 end
 
 function object:static()
-    return false
+    return self._static
+end
+
+function object:setStatic(state)
+    self._static = state
 end
 
 function object:passive()
