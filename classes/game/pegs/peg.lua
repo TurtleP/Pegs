@@ -33,7 +33,7 @@ function peg:draw()
 end
 
 function peg:handlePlayer(name)
-    if name == "barrier" then
+    if name ~= "player" then
         return "slide"
     end
     return false

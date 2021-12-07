@@ -22,7 +22,7 @@ function player:filter(other)
     local x, y = move:unpack()
     local query, len = physics.queryWorld(x, y, self:size())
 
-    local prediction = query[len] and query[len]:name() == "barrier"
+    local prediction = query[len] and (query[len]:name() == "barrier" or query[len]:name() == "wall")
 
     if not other:static() and not other:blocked() and not prediction then
         other:move(self.vector:unpack())

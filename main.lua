@@ -1,6 +1,10 @@
 love.graphics.setDefaultFilter("nearest", "nearest")
 
-require("libraries.nest"):init({mode = "ctr"})
+local nest = require("libraries.nest")
+if nest then
+    nest:init({mode = "ctr"})
+end
+
 require("libraries.batteries"):export()
 
 local colors = require("data.colors")
