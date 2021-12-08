@@ -137,7 +137,9 @@ function states.draw(screen)
                 state:drawBottom()
             end
         else
-            state:draw(screen, depth)
+            if state.draw then
+                state:draw(screen, depth)
+            end
         end
     end
 end

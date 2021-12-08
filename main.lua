@@ -26,4 +26,12 @@ end
 
 function love.gamepadpressed(_, button)
     states.gamepadpressed(button)
+
+    if button == "leftshoulder" then
+        love.event.quit()
+    end
+end
+
+function love.touchpressed(_, x, y)
+    states.touchpressed(x, y)
 end

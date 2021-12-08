@@ -1,14 +1,12 @@
 local object = require("classes.game.object")
 local utility= require("data.utility")
+local colors = require("data.colors")
 local peg = class({extends = object})
 
 local vector = require("libraries.vector")
 
-local texture = love.graphics.newImage("graphics/objects.png")
-local quads = {}
-for index  = 1, 7 do
-    quads[index] = love.graphics.newQuad((index - 1) * 17, 0, 16, 16, texture)
-end
+local textures = require("data.textures")
+local quads = require("data.quads")
 
 function peg:new(type, name, x, y)
     self:super(x, y, 16, 16)
@@ -25,11 +23,8 @@ function peg:new(type, name, x, y)
 end
 
 function peg:draw()
-    love.graphics.setColor(1, 0, 0)
-    love.graphics.rectangle("line", self.x, self.y, 16, 16)
-
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(texture, quads[self._type], self.x, self.y)
+    love.graphics.setColor(colors.user_interface)
+    love.graphics.draw(textures.objects, quads.objects[self._type], self.x, self.y)
 end
 
 function peg:handlePlayer(name)

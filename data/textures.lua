@@ -3,6 +3,7 @@ textures.inited = false
 
 if not textures.inited then
     textures.logo = love.graphics.newImage("graphics/title.png")
+    textures.objects = love.graphics.newImage("graphics/objects.png")
 
     textures.inited = true
 end

@@ -153,6 +153,8 @@ function menu:gamepadpressed(button)
         if self.state ~= "main" then
             self.state = "main"
         end
+    elseif button == "back" then
+        state.switch("editor")
     end
 end
 
