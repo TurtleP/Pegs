@@ -17,17 +17,18 @@ local quads    = require("data.quads")
 
 local CELL_SIZE = 16
 
-function editor:enter(levels)
+function editor:enter(puzzlePack)
     self.menubar = menubar()
 
     self.width = 13
     self.height = 8
 
-    self.levels = levels or {}
+    self.levels = puzzlePack:getLevels()
     self:newLevel()
 
-    if levels then
-        self.grid = levels[self.menubar:level()]
+    if puzzlePack:levelCount() > 0 then
+        self.grid = self.levels[self.menubar:level() .. ".lua"]
+        self:updateGrid()
     end
 
     self.target = vector(0, 0)
@@ -37,6 +38,8 @@ function editor:enter(levels)
     love.graphics.setLineWidth(1)
 
     self._mappackName = nil
+    self._authorName = nil
+
     self._trashIcon = icon(textures.trash, nil, (love.graphics.getWidth() - 32) + (32 - 16) * 0.5, love.graphics.getHeight() - 24)
 
     self.panning = {horizontal = 0, vertical = 0}
@@ -73,6 +76,10 @@ function editor:enter(levels)
 
     self.user_interface.mappackName = iconbutton(x, height + 104, {background = colors.background, icon = textures.mappackName, callback = function()
         self:nameMappack()
+    end})
+
+    self.user_interface.authorName = iconbutton(x, height + 136, {background = colors.background, icon = textures.authorName, callback = function()
+        self:nameAuthor()
     end})
 
     self._mode = "edit"
@@ -277,21 +284,38 @@ function editor:drawBottom()
 end
 
 function editor:textinput(text)
-    self._mappackName = text
+    if self._mode == "mappackName" then
+        self._mappackName = text
+    elseif self._mode == "authorName" then
+        self._authorName = text
+    end
+    self._mode = "edit"
 end
 
 function editor:nameMappack()
     if not self._mappackName then
+        self._mode = "mappackName"
         love.keyboard.setTextInput({hint = "Name your Puzzle Pack"})
-        love.filesystem.createDirectory(tostring(self._mappackName))
+    end
+end
+
+function editor:nameAuthor()
+    if not self._authorName then
+        self._mode = "authorName"
+        love.keyboard.setTextInput({hint = "Enter Puzzle Pack author"})
     end
 end
 
 function editor:exportMap()
     self:nameMappack()
+    self:nameAuthor()
 
-    local filepath = string.format("%s/%s.lua", self._mappackName, self.menubar:level())
-    local file = love.filesystem.newFile(filepath, "w")
+    love.filesystem.createDirectory("maps/" .. tostring(self._mappackName))
+
+    local filepath_format = "maps/%s/%s.lua"
+    local filepath = filepath_format:format(tostring(self._mappackName), self.menubar:level())
+
+    local file, error = love.filesystem.newFile(filepath, "w")
 
     local buffer = "return\n{\n"
     for y = 1, self.height do
@@ -306,7 +330,14 @@ function editor:exportMap()
     end
     buffer = buffer .. "\n}"
 
-    file:write(buffer)
+    if not error then
+        file:write(buffer)
+    else
+        local error_notification = "Failed to save map: %s."
+        local reason = error:match("%b()")
+
+        return spawnNotification(2, error_notification:format(reason))
+    end
 
     local message = "Map saved to %s"
     spawnNotification(1, message:format(filepath))
@@ -315,6 +346,14 @@ function editor:exportMap()
     local _, _, name = file:getFilename():find("/(%d+.lua)")
 
     self.levels[name] = require(require_path:gsub("/", "."))
+
+    local info_filepath = filepath_format:format(self._mappackName, "info")
+    local exists = love.filesystem.getInfo(info_filepath)
+
+    if not exists then
+        local info_format = "return { name = %s, author = %s }"
+        love.filesystem.write(info_filepath, info_format:format(self._mappackName, self._authorName))
+    end
 end
 
 function editor:getGridCursor(x, y)

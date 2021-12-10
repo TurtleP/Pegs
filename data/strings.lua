@@ -22,7 +22,7 @@ if not strings.inited then
     strings.playGame = "Play Game"
     strings.selectMappack = "Select Pack"
     strings.instructions = "Instructions"
-    strings.bonus = "???? ??????"
+    strings.levelEditor = "Level Editor"
 end
 
 return strings

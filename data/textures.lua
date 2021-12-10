@@ -19,6 +19,7 @@ if not textures.inited then
     textures.nextLevel = textures:load("editor/nextlevel.png")
     textures.prevLevel = textures:load("editor/prevlevel.png")
     textures.mappackName = textures:load("editor/mappackname.png")
+    textures.authorName = textures:load("editor/authorname.png")
 
     textures.inited = true
 end

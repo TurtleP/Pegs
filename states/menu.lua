@@ -25,8 +25,12 @@ function menu:enter()
         { text = strings.instructions, func = function()
             self.state = "instructions"
         end },
-        { text = strings.bonus, func = function() end}
+        { text = strings.levelEditor, func = function()
+            state.switch("editor", self.mappacks[self.packSelection])
+        end}
     }
+
+    love.filesystem.createDirectory("maps")
 
     self.mappacks = {}
     local items = love.filesystem.getDirectoryItems("maps")
@@ -34,6 +38,7 @@ function menu:enter()
     for index = 1, #items do
         self.mappacks[index] = mappack(index, "maps." .. items[index])
     end
+    table.insert(self.mappacks, mappack(#items + 1, {name = "New Puzzle Pack", author = "You"}))
 
     self.menuSelection = 1
 
@@ -144,7 +149,6 @@ function menu:gamepadpressed(button)
                 end
             end)
         elseif button == "a" then
-            print("TODO: SELECT ME")
             self.state = "main"
         end
     end
@@ -153,8 +157,6 @@ function menu:gamepadpressed(button)
         if self.state ~= "main" then
             self.state = "main"
         end
-    elseif button == "back" then
-        state.switch("editor")
     end
 end
 
