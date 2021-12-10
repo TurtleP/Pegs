@@ -17,22 +17,18 @@ local quads    = require("data.quads")
 
 local CELL_SIZE = 16
 
-function editor:enter()
+function editor:enter(levels)
     self.menubar = menubar()
 
     self.width = 13
     self.height = 8
 
-    self.grid = {}
-    for y = 1, self.height do
-        self.grid[y] = {}
-        for x = 1, self.width do
-            self.grid[y][x] = 0
-        end
-    end
+    self.levels = levels or {}
+    self:newLevel()
 
-    self.canvas = love.graphics.newCanvas(400, 240)
-    self:updateGrid()
+    if levels then
+        self.grid = levels[self.menubar:level()]
+    end
 
     self.target = vector(0, 0)
     self.camera = camera(0, 0, 2)
@@ -50,11 +46,13 @@ function editor:enter()
     local _, height = self.menubar:size()
 
     self._config = config(self)
-    self.user_interface.conifg = iconbutton((love.graphics.getWidth() - 32) + (32 - 24) * 0.5, height + 8, {background = colors.background, icon = textures.config, callback = function(button)
+    local x = (love.graphics.getWidth() - 32) + (32 - 24) * 0.5
+
+    self.user_interface.conifg = iconbutton(x, height + 8, {background = colors.background, icon = textures.config, callback = function(button)
         self._showConfig = true
     end})
 
-    self.user_interface.eraser = iconbutton((love.graphics.getWidth() - 32) + (32 - 24) * 0.5, love.graphics.getHeight() - 32, {background = colors.background, icon = textures.trash, callback = function(button)
+    self.user_interface.eraser = iconbutton(x, love.graphics.getHeight() - 32, {background = colors.background, icon = textures.trash, callback = function(button)
         if button:selected() then
             button:unselect()
             self._mode = "edit"
@@ -65,11 +63,46 @@ function editor:enter()
         self._mode = "erase"
     end})
 
+    self.user_interface.levelIncrease = iconbutton(x, height + 40, {background = colors.background, icon = textures.nextLevel, callback = function()
+        self.menubar:setLevel(self, 1)
+    end})
+
+    self.user_interface.levelDecrease = iconbutton(x, height + 72, {background = colors.background, icon = textures.prevLevel, callback = function()
+        self.menubar:setLevel(self, -1)
+    end})
+
+    self.user_interface.mappackName = iconbutton(x, height + 104, {background = colors.background, icon = textures.mappackName, callback = function()
+        self:nameMappack()
+    end})
+
     self._mode = "edit"
 end
 
 function editor:size()
     return self.width, self.height
+end
+
+function editor:newLevel()
+    self.grid = {}
+    for y = 1, self.height do
+        self.grid[y] = {}
+        for x = 1, self.width do
+            self.grid[y][x] = 0
+        end
+    end
+
+    self.canvas = love.graphics.newCanvas(400, 240)
+
+    self:updateGrid()
+end
+
+function editor:changeLevel(index)
+    if not self.levels[index .. ".lua"] then
+        return self:newLevel()
+    end
+
+    self.grid = self.levels[index .. ".lua"]
+    self:updateGrid()
 end
 
 function editor:changeSize(x, y)
@@ -247,11 +280,15 @@ function editor:textinput(text)
     self._mappackName = text
 end
 
-function editor:exportMap()
+function editor:nameMappack()
     if not self._mappackName then
         love.keyboard.setTextInput({hint = "Name your Puzzle Pack"})
         love.filesystem.createDirectory(tostring(self._mappackName))
     end
+end
+
+function editor:exportMap()
+    self:nameMappack()
 
     local filepath = string.format("%s/%s.lua", self._mappackName, self.menubar:level())
     local file = love.filesystem.newFile(filepath, "w")
@@ -273,6 +310,11 @@ function editor:exportMap()
 
     local message = "Map saved to %s"
     spawnNotification(1, message:format(filepath))
+
+    local require_path = filepath:gsub(".lua", "")
+    local _, _, name = file:getFilename():find("/(%d+.lua)")
+
+    self.levels[name] = require(require_path:gsub("/", "."))
 end
 
 function editor:getGridCursor(x, y)

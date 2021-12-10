@@ -67,6 +67,11 @@ function menubar:level()
     return self._level
 end
 
+function menubar:setLevel(editor, level)
+    self._level = math.clamp(self._level + level, 1, 99)
+    editor:changeLevel(self._level)
+end
+
 function menubar:unselect()
     if not self._selection then
         return

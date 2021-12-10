@@ -16,6 +16,10 @@ if not textures.inited then
     textures.left   = textures:load("editor/left.png")
     textures.right  = textures:load("editor/right.png")
 
+    textures.nextLevel = textures:load("editor/nextlevel.png")
+    textures.prevLevel = textures:load("editor/prevlevel.png")
+    textures.mappackName = textures:load("editor/mappackname.png")
+
     textures.inited = true
 end
 
