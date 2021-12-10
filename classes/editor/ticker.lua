@@ -18,7 +18,7 @@ function ticker:new(text, x, y, value)
     end})
 
     self.right = iconbutton(self.x + self.width, self.y + (self.height - 24) * 0.5, {icon = textures.right, iconSize = 8, callback = function()
-        self._value = math.min(self._value + 1, 99)
+        self._value = math.min(self._value + 1, 64)
     end})
 end
 
