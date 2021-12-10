@@ -3,6 +3,7 @@ local map = class("map")
 local camera = require("libraries.camera")
 local physics = require("libraries.physics")
 
+local colors  = require("data.colors")
 local utility = require("data.utility")
 
 local peg  = require("classes.game.pegs")
@@ -21,9 +22,10 @@ ObjectTypes.OBJECT_GAP      = 7
 
 map.States = {}
 
-map.States.STATE_DEAD   = "dead"
-map.States.STATE_WIN    = "win"
-map.States.STATE_WRONG  = "wrong"
+map.States.STATE_DEAD    = "dead"
+map.States.STATE_WIN     = "win"
+map.States.STATE_WRONG   = "wrong"
+map.States.STATE_INVALID = "invalid"
 
 function map:new(data)
     local zoom = 2
@@ -32,13 +34,9 @@ function map:new(data)
     self.size = {width = #data[#data] * 16, height = #data * 16}
     self.windowSize = {width = 400, height = 240}
 
-    self.centeredCamera = (self.size.width  < love.graphics.getWidth() and
-                           self.size.height < love.graphics.getHeight())
 
     self:decode(data)
     self._state = nil
-
-    local walls = {}
 end
 
 function map:getPieceName(id)
@@ -161,20 +159,24 @@ function map:decode(data)
 end
 
 function map:updateCamera()
-    if not self.player or self.centeredCamera then
-        self.camera:lookAt(self.size.width / 2, self.size.height / 2)
-        return
-    end
-
     local target_x, target_y = self.player:position()
 
-    local wvw = self.windowSize.width  / (2 * self.camera.scale)
-    local wvh = self.windowSize.height / (2 * self.camera.scale)
+    local window_view_width  = self.windowSize.width  / (2 * self.camera.scale)
+    local window_view_height = self.windowSize.height / (2 * self.camera.scale)
 
     local dx, dy = target_x - self.camera.x, target_y - self.camera.y
 
-    self.camera.x = math.clamp(self.camera.x + dx / 2, 0, self.size.width  - wvw)
-    self.camera.y = math.clamp(self.camera.y + dy / 2, 0, self.size.height - wvh)
+    if self.size.width < self.windowSize.width then
+        self.camera.x = self.size.width / 2
+    else
+        self.camera.x = math.clamp(self.camera.x + dx / 2, window_view_width, self.size.width  - window_view_width)
+    end
+
+    if self.size.height < self.windowSize.height then
+        self.camera.y = self.size.height / 2
+    else
+        self.camera.y = math.clamp(self.camera.y + dy / 2, window_view_height, self.size.height - window_view_height)
+    end
 end
 
 function map:update(dt)
@@ -202,7 +204,13 @@ function map:state()
 end
 
 function map:draw()
+    love.graphics.setColor(colors.user_interface)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
+
     self.camera:attach()
+
+    love.graphics.setColor(colors.background)
+    love.graphics.rectangle("fill", 0, 0, self.size.width, self.size.height)
 
     local entities = physics.getEntities()
     for _, object in pairs(entities) do
@@ -215,8 +223,12 @@ function map:draw()
 end
 
 function map:gamepadpressed(button)
+    if self._state then
+        return
+    end
+
     local transform, which = self:checkTransform()
-    if self._state or self.player:static() or transform then
+    if self.player:static() or transform then
         if transform then
             which:gamepadpressed(self, button)
         end

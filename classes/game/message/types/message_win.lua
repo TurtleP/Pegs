@@ -1,6 +1,8 @@
-local message = require((...):gsub("message_win", "message"))
+local message = require((...):gsub("%.types.+", "") .. ".message")
+
 local colors  = require("data.colors")
 local audio   = require("data.audio")
+
 local message_win  = class({extends = message})
 
 function message_win:new()

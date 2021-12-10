@@ -1,4 +1,5 @@
-local message = require((...):gsub("message_die", "message"))
+local message = require((...):gsub("%.types.+", "") .. ".message")
+
 local utility = require("data.utility")
 local message_die  = class({extends = message})
 

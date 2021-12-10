@@ -14,9 +14,9 @@ function game:enter(levels, levelIndex)
     self.map = map(levels[tostring(self.levelIndex .. ".lua")])
 
     self.messages = {}
-    self.messages.dead  = messages.death()
-    self.messages.win   = messages.win()
-    self.messages.wrong = messages.wrong()
+    for key, value in pairs(messages) do
+        self.messages[key] = value()
+    end
 end
 
 function game:update(dt)

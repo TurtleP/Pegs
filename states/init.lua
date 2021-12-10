@@ -51,10 +51,6 @@ function states.init(start)
         end
     end
 
-    if start then
-        states.switch(start)
-    end
-
     local events = { "update", "gamepadpressed",   "gamepadaxis",
                      "touchpressed", "touchmoved", "touchreleased" }
 
@@ -62,10 +58,14 @@ function states.init(start)
         states[callback] = function(...)
             local state = states.current()
 
-            if state[callback] then
+            if state and state[callback] then
                 state[callback](state, ...)
             end
         end
+    end
+
+    if start then
+        states.switch(start)
     end
 
     states.inited = true

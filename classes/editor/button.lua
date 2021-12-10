@@ -1,40 +1,45 @@
-local colors = require "data.colors"
-local button = class()
+local element = require((...):gsub("button", "element"))
+local button  = class({extends = element})
 
-local ICON_SIZE = 16
+local colors = require ("data.colors")
+local fonts  = require("data.fonts")
 
-function button:new(x, y, texture, quad)
-    self.x = x
-    self.y = y
+function button:new(x, y, width, height, config)
+    self:super(x, y, width, height)
 
-    self.width = 24
-    self.height = 24
+    if config then
+        self._background = config.background
+        self.callback = config.callback
 
-    self._texture = texture
-    self._quad = quad
-    self._selected = false
+        self.text = config.text
+    end
 end
 
-function button:unselect()
-    self._selected = false
+function button:setBackgroundColor(color)
+    self._background = color
+end
+
+function button:background()
+    return self._background
 end
 
 function button:draw()
-    love.graphics.setColor(colors.background)
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, 2, 2)
-
-    local color = colors.user_interface
-    if self._selected then
-        color = colors.selection
+    if self._background then
+        love.graphics.setColor(self._background)
+        love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, 2, 2)
     end
 
-    love.graphics.setColor(color)
-    love.graphics.draw(self._texture, self._quad, self.x + (self.width - ICON_SIZE) * 0.5, self.y + (self.height - ICON_SIZE) * 0.5)
+    if self.text then
+        love.graphics.setColor(colors.user_interface)
+        love.graphics.printf(self.text, fonts.menu, self.x, self.y, self.width, "center")
+    end
 end
 
 function button:touchpressed(x, y)
-    if (x > self.x and x < self.x + self.width and y > self.y and y < self.y + self.height) then
-        self._selected = true
+    if element.touchpressed(self, x, y) then
+        if self.callback then
+            self.callback(self)
+        end
         return true
     end
 end

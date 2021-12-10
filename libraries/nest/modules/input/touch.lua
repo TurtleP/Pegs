@@ -34,6 +34,8 @@ local function translate(x, y)
     return result
 end
 
+local touching = false
+
 local function pushEvent(event, translate, dx, dy, pressure)
     if translate then
         love.event.push(event, 1, translate.x, translate.y, dx, dy, pressure)
@@ -43,14 +45,22 @@ end
 function love.mousepressed(x, y)
     local result = translate(x, y)
     pushEvent("touchpressed", result, 0, 0, 1)
+    touching = true
 end
 
 function love.mousemoved(x, y, dx, dy)
+    if not touching then
+        return
+    end
+
     local result = translate(x, y)
     pushEvent("touchmoved", result, dx, dy, 1)
 end
 
 function love.mousereleased(x, y)
-    local result = translate(x, y)
-    pushEvent("touchreleased", result, 0, 0, 0)
+    if touching then
+        local result = translate(x, y)
+        pushEvent("touchreleased", result, 0, 0, 0)
+        touching = false
+    end
 end

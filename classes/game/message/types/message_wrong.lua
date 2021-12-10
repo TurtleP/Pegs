@@ -1,5 +1,5 @@
-local message     = require((...):gsub("message_wrong", "message"))
-local message_die = require((...):gsub("message_wrong", "message_die"))
+local message     = require((...):gsub("%.types.+", "") .. ".message")
+local message_die = require((...):gsub("message_wrong", "message_dead"))
 
 local audio   = require("data.audio")
 

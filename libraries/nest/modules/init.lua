@@ -4,8 +4,9 @@ local config = require(path .. ".config")
 -- overrides n stuff
 require(path .. ".modules.input.touch")
 if config.get("emulateJoystick") then
-    require(path .. ".modules.input.keyboard").init()
+    require(path .. ".modules.input.joystick").init()
 end
+require(path .. ".modules.input.keyboard")
 
 require(path .. ".modules.renderer.graphics")
 
