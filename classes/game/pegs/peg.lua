@@ -35,12 +35,18 @@ function peg:handlePlayer(name)
 end
 
 function peg:deletePair(other)
-    self:delete()
+    if not self:matches(other) then
+        return "slide"
+    end
+
     other:delete()
+    self:delete()
+
+    return false
 end
 
 function peg:handleSameType(other)
-    self:deletePair(other)
+    return self:deletePair(other)
 end
 
 function peg:filter(other)
@@ -48,12 +54,15 @@ function peg:filter(other)
 
     if name == "gap" then
         self:delete()
-        return false
-    elseif self:name() == name then
-        self:handleSameType(other)
+        return "slide"
+    end
+
+    if self:name() == name then
+        return self:handleSameType(other)
     elseif self:name() ~= name then
         if not utility.any(self._mismatch_exclude, name) then
             self._mismatch = true
+            return "slide"
         end
     end
     return self:handlePlayer(name)
@@ -90,12 +99,12 @@ function peg:name()
     return self._name
 end
 
-function peg:type()
+function peg:id()
     return self._type
 end
 
 function peg:matches(other)
-    return self._type == other:type()
+    return self._type == other:id()
 end
 
 return peg

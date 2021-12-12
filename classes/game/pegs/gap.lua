@@ -5,11 +5,7 @@ function gap:new(x, y)
     self:super(7, "gap", x, y)
 end
 
-function gap:isPassive()
-    return true
-end
-
-function peg:isStatic()
+function gap:passive()
     return true
 end
 

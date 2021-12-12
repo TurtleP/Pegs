@@ -13,6 +13,8 @@ end
 function plus:handleSameType(other)
     self:delete()
     other:setTransform(true)
+
+    return "slide"
 end
 
 function plus:setTransform(transform)

@@ -16,6 +16,8 @@ function triangle:handleSameType(other)
 
     local entity = barrier(other:position())
     physics.addEntity(entity)
+
+    return false
 end
 
 return triangle

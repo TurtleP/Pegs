@@ -52,7 +52,7 @@ function map:checkCleared()
     local entities = physics.getEntities()
     local count = 0
 
-    local exclude = {"player", "barrier", "wall"}
+    local exclude = {"gap", "player", "barrier", "wall"}
 
     for _, value in ipairs(entities) do
         local name = value:name()

@@ -31,19 +31,9 @@ function menu:enter()
     }
 
     love.filesystem.createDirectory("maps")
-
-    self.mappacks = {}
-    local items = love.filesystem.getDirectoryItems("maps")
-
-    for index = 1, #items do
-        self.mappacks[index] = mappack(index, "maps." .. items[index])
-    end
-    table.insert(self.mappacks, mappack(#items + 1, {name = "New Puzzle Pack", author = "You"}))
+    self:loadPuzzlePacks()
 
     self.menuSelection = 1
-
-    self.packSelection = 1
-    self.mappacks[self.packSelection]:select(true)
 
     self.scrollbar = scrollbar(love.graphics.getWidth("bottom"), 15, 204, #self.mappacks)
 
@@ -83,6 +73,43 @@ function menu:draw_main()
     end
 end
 
+function menu:loadPuzzlePacks()
+    self.mappacks = {}
+    local items = love.filesystem.getDirectoryItems("maps")
+
+    for index = 1, #items do
+        self.mappacks[index] = mappack(index, "maps." .. items[index])
+    end
+    table.insert(self.mappacks, mappack(#items + 1, {name = "New Puzzle Pack", author = "You"}))
+
+    self.packSelection = 1
+    self.mappacks[self.packSelection]:select(true)
+end
+
+function menu:defaultPuzzlePacks()
+    if #self.mappacks <= 2 then
+        return
+    end
+
+    local function delete(directory)
+        local items = love.filesystem.getDirectoryItems(directory)
+        for _, value in ipairs(items) do
+            local filepath = directory .. "/" .. value
+            if love.filesystem.getInfo(filepath, "directory") then
+                delete(filepath)
+                love.filesystem.remove(filepath)
+            else
+                love.filesystem.remove(filepath)
+            end
+        end
+    end
+
+    delete("maps")
+    self:loadPuzzlePacks()
+
+    spawnNotification(2, "Puzzle Packs Reset")
+end
+
 function menu:draw_puzzles()
     love.graphics.setScissor(0, 15, love.graphics.getWidth(), love.graphics.getHeight() - fonts.menu:getHeight() - 15)
 
@@ -100,11 +127,13 @@ function menu:draw_puzzles()
 
     love.graphics.setScissor()
 
-    local x = (love.graphics.getWidth() - fonts.menu_medium:getWidth(strings.returnToMenu)) * 0.5
-    local y = (love.graphics.getHeight() - fonts.menu_medium:getHeight())
+    if #self.mappacks > 2 then
+        local x = (love.graphics.getWidth() - fonts.menu_medium:getWidth(strings.resetPacks)) * 0.5
+        local y = (love.graphics.getHeight() - fonts.menu_medium:getHeight())
 
-    love.graphics.setColor(colors.user_interface)
-    love.graphics.print(strings.returnToMenu, fonts.menu_medium, x, y)
+        love.graphics.setColor(colors.user_interface)
+        love.graphics.print(strings.resetPacks, fonts.menu_medium, x, y)
+    end
 end
 
 function menu:draw_instructions()
@@ -150,11 +179,11 @@ function menu:gamepadpressed(button)
             end)
         elseif button == "a" then
             self.state = "main"
+        elseif button == "x" then
+            self:defaultPuzzlePacks()
         end
-    end
-
-    if button == "b" then
-        if self.state ~= "main" then
+    elseif self.state == "instructions" then
+        if button == "b" then
             self.state = "main"
         end
     end

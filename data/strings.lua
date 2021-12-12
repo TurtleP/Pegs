@@ -23,6 +23,8 @@ if not strings.inited then
     strings.selectMappack = "Select Pack"
     strings.instructions = "Instructions"
     strings.levelEditor = "Level Editor"
+
+    strings.resetPacks = "Press X to Reset"
 end
 
 return strings

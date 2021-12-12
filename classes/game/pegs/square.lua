@@ -11,9 +11,9 @@ function square:filter(other)
     if name == "gap" then
         self:delete()
         other:delete()
-        return false
+        return "slide"
     end
-    return self:handlePlayer(name)
+    return peg.filter(self, other)
 end
 
 return square
