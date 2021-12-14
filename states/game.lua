@@ -5,13 +5,18 @@ local audio = require("data.audio")
 local map      = require("classes.game.map")
 local messages = require("classes.game.message")
 
-function game:enter(levels, levelIndex)
-    audio:play("game")
-    self.levels = levels
+local states = require("states")
 
+function game:enter(levels, levelIndex)
+    self.levels = levels
     self.levelIndex = levelIndex or 1
 
+    if not self.levels[self.levelIndex] then
+        states.switch("menu")
+    end
+
     self.map = map(levels[tostring(self.levelIndex .. ".lua")])
+    audio:play("game")
 
     self.messages = {}
     for key, value in pairs(messages) do
