@@ -1,5 +1,5 @@
 return
 {
-    name = "PEGS Original Set",
-    author = "Fred Caughlin"
+    name = "pegs original set",
+    author = "fred caughlin"
 }

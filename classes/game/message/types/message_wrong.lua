@@ -8,7 +8,7 @@ local message_wrong  = class({extends = message_die})
 function message_wrong:new()
     self:super()
 
-    self._message = "THOSE PEGS DON'T MATCH!"
+    self._message = "those pegs don`t\nmatch!"
     self.timer:reset(2)
 end
 

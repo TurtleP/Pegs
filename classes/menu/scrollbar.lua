@@ -9,9 +9,13 @@ function scrollbar:new(x, y, height, size)
     self.x = x - self.width - 2
 
     self.fullHeight = height
-    self.height = height / math.max((size - 4), 1)
+    self.height = height / math.max((size - 3), 1)
 
-    self.max = math.ceil(size / 4)
+    if size ~= 1 then
+        self.max = math.ceil(size / 3)
+    else
+        self.max = 0
+    end
 
     self.position = 0
 end
@@ -25,11 +29,11 @@ function scrollbar:draw()
 end
 
 function scrollbar:getScrollValue()
-    return (self.fullHeight * self.position)
+    return self.position
 end
 
 function scrollbar:scroll(dir)
-    self.position = math.min(self.max, math.max(self.position + dir, 0))
+    self.position = math.clamp(self.position + dir, 0, self.max)
 end
 
 return scrollbar

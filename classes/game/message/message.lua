@@ -4,14 +4,13 @@ local fonts = require("data.fonts")
 
 function message:new(message)
     self._message = message
-    self._font = fonts.menu_big
 
     self.timer = timer(1, nil, nil)
 end
 
 function message:center()
-    local width  = self._font:getWidth(self._message)
-    local height = self._font:getHeight()
+    local width  = fonts.width(self._message)
+    local height = fonts.height(self._message)
 
     return (love.graphics.getWidth("bottom") - width) * 0.5, (love.graphics.getHeight() - height) * 0.5
 end

@@ -7,15 +7,15 @@ local tween = require("libraries.tween")
 
 function mappack:new(index, path)
     self.x = 10
-    self.y = 15
+    self.y = 36
 
     self.index = index
 
     self.staticX = self.x
-    self.tween = tween.new(0.25, self, { x = self.x + 20}, "outQuad")
+    self.tween = tween.new(0.35, self, { x = self.x + 10}, "outQuad")
 
-    self.height = fonts.menu:getHeight() + fonts.menu_small:getHeight()
-    self.offset = 8
+    self.height = fonts.height(" ", 2) * 2
+    self.offset = 16
 
     self._selected = false
 
@@ -83,8 +83,8 @@ function mappack:draw()
     end
 
     love.graphics.setColor(color)
-    love.graphics.print(self._name, fonts.menu, self.x, self.y + (self.index - 1) * (self.height + self.offset))
-    love.graphics.print("By " .. self._author, fonts.menu_small, self.x, (self.y + fonts.menu:getHeight()) + (self.index - 1) * (self.height + self.offset))
+    fonts.print(self._name, self.x, self.y + (self.index - 1) * (self.height + self.offset))
+    fonts.print("by " .. self._author, self.x, self.y + (self.height - fonts.height(" ", 1)) + (self.index - 1) * (self.height + self.offset), 1)
 end
 
 return mappack

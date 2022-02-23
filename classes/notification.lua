@@ -4,13 +4,14 @@ local tween  = require("libraries.tween")
 local fonts  = require("data.fonts")
 local colors = require("data.colors")
 
+local padding = 4
 function notification:new(avoidScreen, time, message)
     self.screen = avoidScreen
     self.timer = timer(time, nil, nil)
     self.message = message
 
-    self.width  = fonts.menu_medium:getWidth(message) + 8
-    self.height = fonts.menu_medium:getHeight()
+    self.width  = fonts.width(message) + padding
+    self.height = fonts.height(message) + padding
 
     local width_screen = "bottom"
     if avoidScreen == "bottom" then
@@ -45,7 +46,9 @@ function notification:draw(screen)
     love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, 2, 2)
 
     love.graphics.setColor(colors.background)
-    love.graphics.printf(self.message, fonts.menu_medium, self.x, self.y + (self.height - fonts.menu_medium:getHeight() + 3) * 0.5, self.width, "center")
+
+    local x = (self.x + (self.width - fonts.width(self.message, 2)) * 0.5)
+    fonts.print(self.message, x, self.y + (self.height - fonts.height(" ", 2)) * 0.5)
 end
 
 notification.messages = {}

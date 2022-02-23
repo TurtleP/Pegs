@@ -7,15 +7,19 @@ local messages = require("classes.game.message")
 
 local states = require("states")
 
+local function map_name(index)
+    return index .. ".lua"
+end
+
 function game:enter(levels, levelIndex)
     self.levels = levels
     self.levelIndex = levelIndex or 1
 
-    if not self.levels[self.levelIndex] then
+    if not self.levels[map_name(self.levelIndex)] then
         states.switch("menu")
     end
 
-    self.map = map(levels[tostring(self.levelIndex .. ".lua")])
+    self.map = map(self.levels[map_name(self.levelIndex)])
     audio:play("game")
 
     self.messages = {}

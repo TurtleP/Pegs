@@ -13,8 +13,8 @@ local states = require("states").init("menu")
 require("classes.notification")
 
 function love.load()
-    love.graphics.setBackgroundColor(colors.background)
     love.audio.setVolume(0)
+    love.graphics.setBackgroundColor(colors.background)
 end
 
 function love.update(dt)

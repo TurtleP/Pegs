@@ -3,28 +3,28 @@ strings.inited = false
 
 if not strings.inited then
     -- Main Menu
-    strings.returnToMenu = "Press 'B' to Return to the Menu"
+    strings.returnToMenu = "press 'b' to return"
 
-    strings.helpText = "To beat each level you must destroy all of the pegs. " ..
-                       "If two of the same pegs are pushed into one another, " ..
-                       "they will disappear, except for triangles which form " ..
-                       "a solid block and plusses which allow you to choose a" ..
-                       " replacement block of any type.\n\n" ..
-                       strings.returnToMenu
+    strings.info = "instructions/Rules:\n\n" ..
+                   "1.destroy all pegs.\n\n" ..
+                   "2.matches disappear.\n\n" ..
+                   "3.triangles form a\n  solid block.\n\n" ..
+                   "4.pluses allow you\n  to choose a\n  replacement.\n\n\n" ..
+                   strings.returnToMenu
 
-    strings.subtitle = "A GAME OF OBJECT ELIMINATION..."
+    strings.subtitle = "a game of\nobject\nelimination"
 
     strings.inited = true
 
-    strings.version = "ver 0.1.0"
-    strings.copyright = "© 2021 TurtleP"
+    strings.version = "v0.1.0"
+    strings.copyright = "C2021 turtlep"
 
-    strings.playGame = "Play Game"
-    strings.selectMappack = "Select Pack"
-    strings.instructions = "Instructions"
+    strings.playGame = "play game"
+    strings.selectMappack = "select pack"
+    strings.instructions = "instructions"
     strings.levelEditor = "Level Editor"
 
-    strings.resetPacks = "Press X to Reset"
+    strings.resetPacks = "press 'X' to reset"
 end
 
 return strings

@@ -1,6 +1,8 @@
-local object = require("classes.game.object")
-local utility= require("data.utility")
-local colors = require("data.colors")
+local object  = require("classes.game.object")
+local utility = require("data.utility")
+local colors  = require("data.colors")
+local physics = require("libraries.physics")
+
 local peg = class({extends = object})
 
 local vector = require("libraries.vector")
@@ -59,10 +61,10 @@ function peg:filter(other)
 
     if self:name() == name then
         return self:handleSameType(other)
-    elseif self:name() ~= name then
+    elseif self:name() ~= name and name ~= "player" then
         if not utility.any(self._mismatch_exclude, name) then
             self._mismatch = true
-            return "slide"
+            return false
         end
     end
     return self:handlePlayer(name)

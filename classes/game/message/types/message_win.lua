@@ -2,11 +2,12 @@ local message = require((...):gsub("%.types.+", "") .. ".message")
 
 local colors  = require("data.colors")
 local audio   = require("data.audio")
+local fonts   = require("data.fonts")
 
 local message_win  = class({extends = message})
 
 function message_win:new()
-    self:super("NICE PEGGING!")
+    self:super("nice pegging!")
     self.inited = false
 end
 
@@ -29,11 +30,11 @@ function message_win:draw()
 
     for index = 1, #self._message do
         if index > 0 then
-            width = width + self._font:getWidth(self._message:sub(index - 1, index - 1))
+            width = width + fonts.width(self._message:sub(index - 1, index - 1), 2)
         end
 
         local mul = math.sin((love.timer.getTime() * 14) + sector * index) * 8
-        love.graphics.print(self._message:sub(index, index), self._font, x + width, y + mul)
+        fonts.print(self._message:sub(index, index), x + width, y + mul, 2)
     end
 end
 

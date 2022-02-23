@@ -24,10 +24,7 @@ function menu:enter()
         end },
         { text = strings.instructions, func = function()
             self.state = "instructions"
-        end },
-        { text = strings.levelEditor, func = function()
-            state.switch("editor", self.mappacks[self.packSelection])
-        end}
+        end }
     }
 
     love.filesystem.createDirectory("maps")
@@ -35,7 +32,7 @@ function menu:enter()
 
     self.menuSelection = 1
 
-    self.scrollbar = scrollbar(love.graphics.getWidth("bottom"), 15, 204, #self.mappacks)
+    self.scrollbar = scrollbar(love.graphics.getWidth("bottom"), 16, 224, #self.mappacks)
 
     self.state = "main"
 end
@@ -50,13 +47,13 @@ end
 
 function menu:drawTop(depth)
     local x, y = textures:centered("top", "logo")
-    love.graphics.draw(textures.logo, x, y)
+    love.graphics.draw(textures.logo, math.round(x), math.round(y))
 
     love.graphics.setColor(colors.user_interface)
-    love.graphics.printf(strings.subtitle, fonts.menu, textures.logo:getWidth() * 0.32, textures.logo:getHeight() * 0.125, 300, "center")
+    fonts.print(strings.subtitle, love.graphics.getWidth() * 0.45, love.graphics.getHeight() * 0.125, 2, 2)
 
-    love.graphics.print(strings.copyright, fonts.menu_small, 0, love.graphics.getHeight() - fonts.menu_small:getHeight() + 4)
-    love.graphics.print(strings.version, fonts.menu_small, love.graphics.getWidth() - fonts.menu_small:getWidth(strings.version), love.graphics.getHeight() - fonts.menu_small:getHeight() + 4)
+    fonts.print(strings.copyright, 0, love.graphics.getHeight() - fonts.height(" ", 1), 1)
+    fonts.print(strings.version, love.graphics.getWidth() - fonts.width(strings.version, 1), love.graphics.getHeight() - fonts.height(" ", 1), 1, 1)
 end
 
 function menu:draw_main()
@@ -69,7 +66,7 @@ function menu:draw_main()
         end
 
         love.graphics.setColor(color)
-        love.graphics.print(value.text, fonts.menu_big, (love.graphics.getWidth() - fonts.menu_big:getWidth(value.text)) * 0.5, 40 + (index - 1) * 44)
+        fonts.print(value.text, (love.graphics.getWidth() - fonts.width(value.text, 3)) * 0.5, 64 + (index - 1) * 48, 3, 3)
     end
 end
 
@@ -80,14 +77,13 @@ function menu:loadPuzzlePacks()
     for index = 1, #items do
         self.mappacks[index] = mappack(index, "maps." .. items[index])
     end
-    table.insert(self.mappacks, mappack(#items + 1, {name = "New Puzzle Pack", author = "You"}))
 
     self.packSelection = 1
     self.mappacks[self.packSelection]:select(true)
 end
 
 function menu:defaultPuzzlePacks()
-    if #self.mappacks <= 2 then
+    if #self.mappacks <= 1 then
         return
     end
 
@@ -111,11 +107,11 @@ function menu:defaultPuzzlePacks()
 end
 
 function menu:draw_puzzles()
-    love.graphics.setScissor(0, 15, love.graphics.getWidth(), love.graphics.getHeight() - fonts.menu:getHeight() - 15)
+    love.graphics.setScissor(0, 8, love.graphics.getWidth(), love.graphics.getHeight() - 24)
 
     love.graphics.push()
 
-    love.graphics.translate(0, -self.scrollbar:getScrollValue())
+    love.graphics.translate(0, -self.scrollbar:getScrollValue() * 48)
 
     for _, v in ipairs(self.mappacks) do
         v:draw()
@@ -127,18 +123,18 @@ function menu:draw_puzzles()
 
     love.graphics.setScissor()
 
-    if #self.mappacks > 2 then
-        local x = (love.graphics.getWidth() - fonts.menu_medium:getWidth(strings.resetPacks)) * 0.5
-        local y = (love.graphics.getHeight() - fonts.menu_medium:getHeight())
+    if #self.mappacks > 1 then
+        local x = (love.graphics.getWidth() - fonts.width(strings.resetPacks, 2)) * 0.5
+        local y = (love.graphics.getHeight() - fonts.height())
 
         love.graphics.setColor(colors.user_interface)
-        love.graphics.print(strings.resetPacks, fonts.menu_medium, x, y)
+        fonts.print(strings.resetPacks, x, y, 2, 2)
     end
 end
 
 function menu:draw_instructions()
     love.graphics.setColor(colors.user_interface)
-    love.graphics.printf(strings.helpText, fonts.menu_medium, 2, 15, love.graphics.getWidth() - 4, "center")
+    fonts.print(strings.info, 0, 0)
 end
 
 function menu:drawBottom()
@@ -166,16 +162,13 @@ function menu:gamepadpressed(button)
         if button == "dpdown" then
             self:updateMappackSelection(function()
                 self.packSelection = math.min(self.packSelection + 1, #self.mappacks)
-                if self.packSelection % 5 == 0 then
-                    self.scrollbar:scroll(1)
-                end
+                print(self.packSelection, #self.mappacks)
+                self.scrollbar:scroll(1)
             end)
         elseif button == "dpup" then
             self:updateMappackSelection(function()
                 self.packSelection = math.max(self.packSelection - 1, 1)
-                if self.packSelection % 4 == 0 then
-                    self.scrollbar:scroll(-1)
-                end
+                self.scrollbar:scroll(-1)
             end)
         elseif button == "a" then
             self.state = "main"

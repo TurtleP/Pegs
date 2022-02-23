@@ -7,14 +7,15 @@ local tween   = require("libraries.tween")
 local vector  = require("libraries.vector")
 local colors  = require("data.colors")
 local audio   = require("data.audio")
+local fonts   = require("data.fonts")
 
 function message_die:new()
-    self:super("YOU FELL AND DIED.")
+    self:super("you fell and died.")
 
     local x, y = self:center()
-    self.target = y - 12
+    self.target = y
 
-    self.y = -self._font:getHeight()
+    self.y = -fonts.height()
     self.position = vector(x, self.y)
 
     self.tween = tween.new(1, self, {y = self.target}, "outBounce")
@@ -52,7 +53,7 @@ function message_die:draw()
     love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
 
     love.graphics.setColor(self.textColor)
-    love.graphics.printf(self._message, self._font, self.position.x, self.y, 320, "center")
+    fonts.print(self._message, self.position.x, self.y)
 
     love.graphics.setColor(1, 1, 1)
 end
